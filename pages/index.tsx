@@ -1,17 +1,23 @@
-import { NextPage } from "next";
-import { useEffect, useState } from "react";
- 
-const IndexPage: NextPage = () => {
-  const[imageUrl, setImageUrl] = useState("");
-  const[loading, setLoading] = useState(true);
+import { GetServerSideProps, NextPage } from "next";
+import { useState } from "react";
+
+//  getseversidepropsから渡されるpropsの型
+type Props = {
+    initialImageUrl: string;
+};
+
+// ページコンポーネントの関数にpropsを受け取る引数を追加する（追加は｛initialImageUrl｝）
+const IndexPage: NextPage<Props> = ({initialImageUrl}) => {
+  const[imageUrl, setImageUrl] = useState(initialImageUrl); //引数を渡す
+  const[loading, setLoading] = useState(false); //初期状態はfalseにしておく
 
   
-  useEffect(() =>{
-    fetchImage().then((newImage) =>{
-        setImageUrl(newImage.url);
-        setLoading(false);
-    });
-  },[]);
+//   useEffect(() =>{
+//     fetchImage().then((newImage) =>{
+//         setImageUrl(newImage.url);
+//         setLoading(false);
+//     });
+//   },[]);
 
 const handleClick = async () =>{
     setLoading(true);
@@ -19,7 +25,8 @@ const handleClick = async () =>{
     setImageUrl(newImage.url);
     setLoading(false);
 };
-    return(<div>
+    return(
+    <div>
         <button onClick={handleClick}>他のにゃんこも見る</button>
         <div>{loading || <img src={imageUrl} />}</div>
     </div>
@@ -27,18 +34,24 @@ const handleClick = async () =>{
 };
 export default IndexPage;
 
+//サーバーサイドで実行する処理
+export const getServerSideProps:  GetServerSideProps<Props> = async () => {
+    const image = await fetchImage();
+    return{
+        props: {
+            initialImageUrl: image.url,
+    },
+ };
+};
 type Image = {
     url: string;
 };
-
-
-const fetchImage = async () =>{
+const fetchImage = async ():Promise<Image> =>{
     const res = await fetch("https://api.thecatapi.com/v1/images/search");
     const images = await res.json();
     console.log(images);
     return images[0];
 };
-
 // fetchImage().then((image) => {
 //     // (parameter) image: any 
 //     console.log(image.alt);
