@@ -1,5 +1,7 @@
 import { GetServerSideProps, NextPage } from "next";
 import { useState } from "react";
+// cssの読み込み追加
+import styles from "./index.module.css"
 
 //  getseversidepropsから渡されるpropsの型
 type Props = {
@@ -26,9 +28,13 @@ const handleClick = async () =>{
     setLoading(false);
 };
     return(
-    <div>
-        <button onClick={handleClick}>他のにゃんこも見る</button>
-        <div>{loading || <img src={imageUrl} />}</div>
+    <div className={styles.css}>
+        <button onClick={handleClick} className={styles.button}>
+            他のにゃんこも見る
+            </button>
+        <div className={styles.frame}>
+            {loading || <img src={imageUrl} />}
+            </div>
     </div>
     );
 };
