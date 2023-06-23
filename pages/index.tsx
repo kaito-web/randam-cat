@@ -4,55 +4,52 @@ import { useState } from "react";
 import styles from "./index.module.css"
 
 //  getseversidepropsから渡されるpropsの型
-type Props = {
-    initialImageUrl: string;
+type IndexPageProps = {
+    initialCatImageUrl: string;
 };
 
-// ページコンポーネントの関数にpropsを受け取る引数を追加する（追加は｛initialImageUrl｝）
-const IndexPage: NextPage<Props> = ({initialImageUrl}) => {
-  const[imageUrl, setImageUrl] = useState(initialImageUrl); //引数を渡す
-  const[loading, setLoading] = useState(false); //初期状態はfalseにしておく
-
-  
-//   useEffect(() =>{
-//     fetchImage().then((newImage) =>{
-//         setImageUrl(newImage.url);
-//         setLoading(false);
-//     });
-//   },[]);
-
-const handleClick = async () =>{
-    setLoading(true);
-    const newImage = await fetchImage();
-    setImageUrl(newImage.url);
-    setLoading(false);
-};
-    return(
-    <div className={styles.css}>
-        <button onClick={handleClick} className={styles.button}>
-            他のにゃんこも見る
-            </button>
-        <div className={styles.frame}>
-            {loading || <img src={imageUrl} />}
-            </div>
+const IndexPage: NextPage<IndexPageProps> = ({ initialCatImageUrl }) => {
+    const [catImageUrl, setCatImageUrl] = useState(initialCatImageUrl);
+    const handleClick = async () => {
+      const image = await fetchCatImage();
+      setCatImageUrl(image.url);
+    };
+    
+return (
+    <div>
+      <button
+        onClick={handleClick}
+        style={{
+          backgroundColor: "#319795",
+          border: "none",
+          borderRadius: "4px",
+          color: "white",
+          padding: "4px 8px",
+        }}
+      >
+        きょうのにゃんこ🐱
+      </button>
+      <div style={{ marginTop: 8, maxWidth: 500 }}>
+        <img src={catImageUrl} width="100%" height="auto" alt="猫" />
+      </div>
     </div>
-    );
+  );
 };
 export default IndexPage;
 
 //サーバーサイドで実行する処理
-export const getServerSideProps:  GetServerSideProps<Props> = async () => {
-    const image = await fetchImage();
+export const getServerSideProps:  GetServerSideProps<IndexPageProps> = async () => {
+    const image = await fetchCatImage();
     return{
         props: {
-            initialImageUrl: image.url,
+            initialCatImageUrl: image.url,
     },
  };
 };
 type Image = {
     url: string;
 };
-const fetchImage = async ():Promise<Image> =>{
+const fetchCatImage = async ():Promise<Image> =>{
     const res = await fetch("https://api.thecatapi.com/v1/images/search");
     const images = await res.json();
     console.log(images);
